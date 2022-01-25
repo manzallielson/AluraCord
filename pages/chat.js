@@ -2,9 +2,6 @@ import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 import React from 'react';
 import { useRouter } from 'next/router';
 import appConfig from '../config.json';
-import Link from 'next/link'
-
-
 
 function Titulo(props) {
     const Tag = props.tag || 'h1';
@@ -22,29 +19,15 @@ function Titulo(props) {
     );
 }
 
-// Componente React
-// function HomePage() {
-//     // JSX
-//     return (
-//         <div>
-//             <GlobalStyle />
-//             <Titulo tag="h2">Boas vindas de volta!</Titulo>
-//             <h2>Discord - Alura Matrix</h2>
-//         </div>
-//     )
-// }
-// export default HomePage
 
-export default function PaginaInicial() {
+
+
+export default function chat() {
     const [username, setUsername] = React.useState('manzallielson');
     const roteamento = useRouter();
-    const paginaChat = () => {
-        return (
-            roteamento.push("/chat")
-        )
-    }
 
     return (
+
         <Box>
 
             <Box
@@ -60,7 +43,10 @@ export default function PaginaInicial() {
             >
 
                 <Box styleSheet={{
-                    fontSize: '2em',
+                    fontSize: {
+                        xs: '1em',
+                        sm: '2em',
+                    },
                     textAlign: 'center',
                     color: 'white',
                     display: 'flex',
@@ -74,8 +60,8 @@ export default function PaginaInicial() {
                     textShadow: '-2px 0 black, 0 2px black , 2px 0 black , 0 -2px black',
                 }}>
 
-                    <h1 >
-                        Aprendendo React!
+                    <h1>
+                        CHAT DE PERGUNTAS
                     </h1>
 
                 </Box>
@@ -85,7 +71,7 @@ export default function PaginaInicial() {
                     styleSheet={{
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'space-between',
+                        justifyContent: 'center',
                         flexDirection: {
                             xs: 'column',
                             sm: 'row',
@@ -113,13 +99,12 @@ export default function PaginaInicial() {
                         }}
                     >
 
-                        <Titulo tag="h2">Bora aprender juntos ?</Titulo>
+                        <Titulo tag="h2">Chat de Perguntas</Titulo>
                         <Text variant="body3" styleSheet={{ marginBottom: '32px', color: appConfig.theme.colors.neutrals[300] }}>
                             {appConfig.name}
                         </Text>
 
                         <TextField
-                            value={username}
                             onChange={function (event) {
                                 const valor = event.target.value;
                                 setUsername(valor);
@@ -143,7 +128,6 @@ export default function PaginaInicial() {
                             }}
                         />
                         <Button
-
                             type='submit'
                             label='Entrar'
                             fullWidth
@@ -159,58 +143,10 @@ export default function PaginaInicial() {
                             }}
                         />
                     </Box>
-                    {/* Formulário */}
 
-
-                    {/* Photo Area */}
-                    <Box
-                        styleSheet={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            maxWidth: '200px',
-                            padding: '16px 16px 16px 16px',
-                            background: appConfig.theme.colors.novas["000"],
-                            border: '1px solid',
-                            borderColor: appConfig.theme.colors.neutrals["000"],
-                            borderRadius: '35px 0px 35px 35px',
-                            flex: 1,
-                            minHeight: '240px',
-
-                        }}
-                    >
-                        <Image
-                            styleSheet={{
-                                border: "solid 1px",
-                                borderColor: appConfig.theme.colors.neutrals["000"],
-                                borderRadius: '35px 0px 35px 35px',
-                                marginBottom: '16px',
-                            }}
-                            src={`https://github.com/${username}.png`}
-                        />
-
-                            <Button
-                                onClick={paginaChat}
-                                label={`GitHub ${username}`}
-                                fullWidth
-                                buttonColors={{
-                                    contrastColor: appConfig.theme.colors.neutrals["000"],
-                                }}
-                                styleSheet={{
-                                    border: 'solid 1px white',
-                                    borderRadius: '10px 10px',
-                                    backgroundColor: '#5a3226',
-                                    padding: '5px 20px',
-                                }}
-
-                            />
-        
-
-                        {/* </Text> */}
-                    </Box>
-                    {/* Photo Area */}
                 </Box>
             </Box>
         </Box >
-    );
-}
+    )
+
+};
