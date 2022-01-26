@@ -1,30 +1,27 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
-import {useUser} from '../hooks/useUser'
 
 export default function ChatPage() {
+  
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
-    const {username, setUsername} = useUser();
-    console.log(username)
-     /* 
-    // usuario
-    -usuario digita no campo textarea
-    -aperta enter para enviar
-    -tem que adicionar o texto na listagem
 
-    //dev
-    -[x] campo criado
-    -[] vamos usar o onChange usa useState (ter if para caso seja enter para limpar a variavel)
-    -[] listagem de mensagens
-
-    */
+    /*
+    // Usuário
+    - Usuário digita no campo textarea
+    - Aperta enter para enviar
+    - Tem que adicionar o texto na listagem
     
+    // Dev
+    - [X] Campo criado
+    - [X] Vamos usar o onChange usa o useState (ter if pra caso seja enter pra limpar a variavel)
+    - [X] Lista de mensagens 
+    */
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
             id: listaDeMensagens.length + 1,
-            de: username ? username : 'Visitante',
+            de: 'vanessametonini',
             texto: novaMensagem,
         };
 
@@ -35,18 +32,12 @@ export default function ChatPage() {
         setMensagem('');
     }
 
-    function deleteMessage(id) {
-        const newList = listaDeMensagens.filter((item)=> item.id != id )
-        console.log(id)
-        setListaDeMensagens(newList);
-    }
-
     return (
         <Box
             styleSheet={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backgroundColor: appConfig.theme.colors.primary['000'],
-                backgroundImage: 'url(https://virtualbackgrounds.site/wp-content/uploads/2020/07/bookshelf-at-dunster-house-library-1024x576.jpg)',
+                backgroundColor: appConfig.theme.colors.primary[500],
+                backgroundImage: `url(https://virtualbackgrounds.site/wp-content/uploads/2020/08/the-matrix-digital-rain.jpg)`,
                 backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
                 color: appConfig.theme.colors.neutrals['000']
             }}
@@ -56,36 +47,36 @@ export default function ChatPage() {
                     display: 'flex',
                     flexDirection: 'column',
                     flex: 1,
-                    border: 'solid 1px white',
-                    borderRadius: '40px 0px 40px 40px',
-                    backgroundColor: 'black',
+                    boxShadow: '0 2px 10px 0 rgb(0 0 0 / 20%)',
+                    borderRadius: '5px',
+                    backgroundColor: appConfig.theme.colors.neutrals[700],
                     height: '100%',
-                    maxWidth: {
-                        sm: '75%',
-                        xs: '85%'
-                    },
-                    minWidth: '360px',
-                    maxHeight: '85vh',
+                    maxWidth: '95%',
+                    maxHeight: '95vh',
                     padding: '32px',
                 }}
             >
                 <Header />
                 <Box
                     styleSheet={{
-                        border: 'solid 1px white',
                         position: 'relative',
                         display: 'flex',
                         flex: 1,
                         height: '80%',
-                        backgroundColor: '#5a3629',
+                        backgroundColor: appConfig.theme.colors.neutrals[600],
                         flexDirection: 'column',
-                        borderRadius: '25px 0px 25px 25px',
+                        borderRadius: '5px',
                         padding: '16px',
                     }}
                 >
-
-                    {/* <MessageList mensagens={[]} /> */}
-                    <MessageList mensagens={listaDeMensagens} onDelete={deleteMessage} />
+                    <MessageList mensagens={listaDeMensagens} />
+                    {/* {listaDeMensagens.map((mensagemAtual) => {
+                        return (
+                            <li key={mensagemAtual.id}>
+                                {mensagemAtual.de}: {mensagemAtual.texto}
+                            </li>
+                        )
+                    })} */}
                     <Box
                         as="form"
                         styleSheet={{
@@ -108,17 +99,14 @@ export default function ChatPage() {
                             placeholder="Insira sua mensagem aqui..."
                             type="textarea"
                             styleSheet={{
-                                border: 'solid 1px white',
                                 width: '100%',
+                                border: '0',
                                 resize: 'none',
                                 borderRadius: '5px',
                                 padding: '6px 8px',
-                                backgroundColor: 'black',
+                                backgroundColor: appConfig.theme.colors.neutrals[800],
                                 marginRight: '12px',
-                                color: 'white',
-                                text: {
-                                    color: 'white'
-                                }
+                                color: appConfig.theme.colors.neutrals[200],
                             }}
                         />
                     </Box>
@@ -140,18 +128,14 @@ function Header() {
                     colorVariant='neutral'
                     label='Logout'
                     href="/"
-                    styleSheet={{ color: 'white', border: 'solid 1px white', borderRadius: '5px 5px' }}
                 />
             </Box>
         </>
     )
 }
 
-function MessageList({ mensagens, onDelete }) {
-    const {username, setUsername} = useUser();
-
-    console.log('MessageList', mensagens);
-
+function MessageList(props) {
+    console.log(props);
     return (
         <Box
             tag="ul"
@@ -164,10 +148,10 @@ function MessageList({ mensagens, onDelete }) {
                 marginBottom: '16px',
             }}
         >
-            {mensagens.map((mensagem, index) => {
+            {props.mensagens.map((mensagem) => {
                 return (
                     <Text
-                        key={index}
+                        key={mensagem.id}
                         tag="li"
                         styleSheet={{
                             borderRadius: '5px',
@@ -178,7 +162,6 @@ function MessageList({ mensagens, onDelete }) {
                             }
                         }}
                     >
-
                         <Box
                             styleSheet={{
                                 marginBottom: '8px',
@@ -192,7 +175,7 @@ function MessageList({ mensagens, onDelete }) {
                                     display: 'inline-block',
                                     marginRight: '8px',
                                 }}
-                                src={`https://github.com/${username}.png`}
+                                src={`https://github.com/vanessametonini.png`}
                             />
                             <Text tag="strong">
                                 {mensagem.de}
@@ -207,11 +190,6 @@ function MessageList({ mensagens, onDelete }) {
                             >
                                 {(new Date().toLocaleDateString())}
                             </Text>
-                            <button onClick={() => onDelete(
-                                mensagem.id
-                            )}>
-                                excluir
-                            </button>
                         </Box>
                         {mensagem.texto}
                     </Text>

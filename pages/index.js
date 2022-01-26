@@ -3,6 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import appConfig from '../config.json';
 import Link from 'next/link'
+import {useUser} from '../hooks/useUser'
 
 
 
@@ -36,8 +37,9 @@ function Titulo(props) {
 // export default HomePage
 
 export default function PaginaInicial() {
-    const [username, setUsername] = React.useState('manzallielson');
+    const {username,setUser} = useUser();  
     const roteamento = useRouter();
+    
     const paginaChat = () => {
         return (
             roteamento.push("/chat")
@@ -122,7 +124,8 @@ export default function PaginaInicial() {
                             value={username}
                             onChange={function (event) {
                                 const valor = event.target.value;
-                                setUsername(valor);
+                                setUser(valor);
+                                // localStorage.setItem("userName",valor)
                             }}
                             fullWidth
                             textFieldColors={{
@@ -189,22 +192,23 @@ export default function PaginaInicial() {
                             src={`https://github.com/${username}.png`}
                         />
 
-                            <Button
-                                onClick={paginaChat}
-                                label={`GitHub ${username}`}
-                                fullWidth
-                                buttonColors={{
-                                    contrastColor: appConfig.theme.colors.neutrals["000"],
-                                }}
-                                styleSheet={{
-                                    border: 'solid 1px white',
-                                    borderRadius: '10px 10px',
-                                    backgroundColor: '#5a3226',
-                                    padding: '5px 20px',
-                                }}
+                        <Button
+                            href="https://www.google.com" //https
+                            label={`GitHub ${username}`}
+                            fullWidth
+                            buttonColors={{
+                                contrastColor: appConfig.theme.colors.neutrals["000"],
+                            }}
+                            styleSheet={{
+                                textAlign:'center',
+                                border: 'solid 1px white',
+                                borderRadius: '10px 10px',
+                                backgroundColor: '#5a3226',
+                                padding: '5px 20px',
+                            }}
 
-                            />
-        
+                        />
+
 
                         {/* </Text> */}
                     </Box>
