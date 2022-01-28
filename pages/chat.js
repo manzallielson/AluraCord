@@ -1,44 +1,81 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
-import {useUser} from '../hooks/useUser'
+import { useUser } from '../hooks/useUser'
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI5NjAxNiwiZXhwIjoxOTU4ODcyMDE2fQ.7PMO85vuH3LA-kVKEx5x2rGTS4cjj6KPu21Jk5spZQU'
+const SUPABASE_URL = 'https://hrxdmdigdqqnyhoeoarx.supabase.co'
+const supaBaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 
 export default function ChatPage() {
     const [mensagem, setMensagem] = React.useState('');
     const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
-    const {username, setUsername} = useUser();
-    console.log(username)
-     /* 
-    // usuario
-    -usuario digita no campo textarea
-    -aperta enter para enviar
-    -tem que adicionar o texto na listagem
+    const { username, setUsername } = useUser();
 
-    //dev
-    -[x] campo criado
-    -[] vamos usar o onChange usa useState (ter if para caso seja enter para limpar a variavel)
-    -[] listagem de mensagens
+    React.useEffect(() => {
+        getMensagens();
+    }, []);
 
-    */
-    
+    function getMensagens() {
+        supaBaseClient
+            .from('mensagens')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(({ data }) => {
+                console.log('dados da consulta :', data)
+                setListaDeMensagens(data);
+            });
+    }
+    /* 
+   // usuario
+   -usuario digita no campo textarea
+   -aperta enter para enviar
+   -tem que adicionar o texto na listagem
+
+   //dev
+   -[x] campo criado
+   -[] vamos usar o onChange usa useState (ter if para caso seja enter para limpar a variavel)
+   -[] listagem de mensagens
+
+   */
+
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
-            id: listaDeMensagens.length + 1,
+            // id: listaDeMensagens.length + 1,
             de: username ? username : 'Visitante',
             texto: novaMensagem,
         };
-
-        setListaDeMensagens([
-            mensagem,
-            ...listaDeMensagens,
-        ]);
-        setMensagem('');
+        supaBaseClient
+            .from('mensagens')
+            .insert([
+                //mesmo nome do objeto criado no banco de dados
+                mensagem
+            ])
+            .then(({ data }) => {
+                console.log(data)
+                setListaDeMensagens([
+                    data[0],
+                    ...listaDeMensagens,
+                ]);
+                setMensagem('');
+            })
     }
 
-    function deleteMessage(id) {
-        const newList = listaDeMensagens.filter((item)=> item.id != id )
-        console.log(id)
-        setListaDeMensagens(newList);
+    async function deleteMessage(id) {
+        try {
+            const { data, error } = await supaBaseClient
+                .from('mensagens')
+                .delete()
+                .match({ id: id })
+                
+                const newList = listaDeMensagens.filter((item) => item.id != id)
+                setListaDeMensagens(newList);
+            
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     return (
@@ -108,6 +145,7 @@ export default function ChatPage() {
                             placeholder="Insira sua mensagem aqui..."
                             type="textarea"
                             styleSheet={{
+                                alignItems: 'center',
                                 border: 'solid 1px white',
                                 width: '100%',
                                 resize: 'none',
@@ -116,9 +154,8 @@ export default function ChatPage() {
                                 backgroundColor: 'black',
                                 marginRight: '12px',
                                 color: 'white',
-                                text: {
-                                    color: 'white'
-                                }
+                                fontSize: '25px',
+
                             }}
                         />
                     </Box>
@@ -132,15 +169,24 @@ function Header() {
     return (
         <>
             <Box styleSheet={{ width: '100%', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
-                <Text variant='heading5'>
-                    Chat
+                <Text variant='heading5'
+                    styleSheet={{
+                        fontSize: '25px',
+                    }
+                    }>
+                    AluraCord
                 </Text>
                 <Button
                     variant='tertiary'
                     colorVariant='neutral'
                     label='Logout'
                     href="/"
-                    styleSheet={{ color: 'white', border: 'solid 1px white', borderRadius: '5px 5px' }}
+                    styleSheet={{
+                        hover: {
+                            backgroundColor: '#5a3226'
+                        },
+                        color: 'white', border: 'solid 1px white', borderRadius: '5px 5px'
+                    }}
                 />
             </Box>
         </>
@@ -148,9 +194,8 @@ function Header() {
 }
 
 function MessageList({ mensagens, onDelete }) {
-    const {username, setUsername} = useUser();
+    const { username, setUsername } = useUser();
 
-    console.log('MessageList', mensagens);
 
     return (
         <Box
@@ -173,50 +218,112 @@ function MessageList({ mensagens, onDelete }) {
                             borderRadius: '5px',
                             padding: '6px',
                             marginBottom: '12px',
-                            hover: {
-                                backgroundColor: appConfig.theme.colors.neutrals[700],
-                            }
+
                         }}
                     >
 
                         <Box
                             styleSheet={{
-                                marginBottom: '8px',
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: 'center',
                             }}
                         >
-                            <Image
-                                styleSheet={{
-                                    width: '20px',
-                                    height: '20px',
-                                    borderRadius: '50%',
-                                    display: 'inline-block',
-                                    marginRight: '8px',
-                                }}
-                                src={`https://github.com/${username}.png`}
-                            />
-                            <Text tag="strong">
-                                {mensagem.de}
-                            </Text>
+                            <Box styleSheet={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: 'center'
+                            }}>
+
+                                <Image
+                                    styleSheet={{
+                                        width: '20px',
+                                        height: '20px',
+                                        borderRadius: '50%',
+                                        display: 'inline-block',
+                                        marginRight: '8px',
+                                    }}
+                                    src={mensagem.de == '' ? `https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png` : `https://github.com/${mensagem.de}.png`}
+                                />
+                                <Text tag="strong"
+                                    styleSheet={{
+                                        fontSize: '25px',
+                                        color: 'yellow'
+                                    }}>
+                                    {mensagem.de}
+                                </Text>
+
+                                <Text
+                                    styleSheet={{
+                                        fontSize: '10px',
+                                        marginLeft: '8px',
+                                        color: appConfig.theme.colors.neutrals[300],
+                                    }}
+                                    tag="span"
+                                >
+                                    {(new Date().toLocaleDateString())}
+
+
+                                </Text>
+
+                            </Box>
+                            <Box styleSheet={{
+                                marginRight: '10px',
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                            }}>
+
+                                <Button
+                                    label='X'
+                                    styleSheet={{
+                                        width: '10px',
+                                        height: '10px',
+                                        backgroundColor: '#5a3226',
+                                        hover: {
+                                            backgroundColor: 'black',
+                                            color: 'white',
+                                            border: 'solid 1px white'
+
+                                        },
+
+                                    }} onClick={() => onDelete(
+                                        mensagem.id
+                                    )}>
+                                </Button>
+                            </Box>
+
+                        </Box>
+                        <Box
+                            styleSheet={{
+                                marginTop: '5px',
+                                display: 'flex',
+                                alignItems: "center",
+                                justifyContent: 'space-between',
+                                fontSize: '25px',
+                                color: 'white'
+
+                            }}>
+
+                            {mensagem.texto}
                             <Text
                                 styleSheet={{
                                     fontSize: '10px',
-                                    marginLeft: '8px',
                                     color: appConfig.theme.colors.neutrals[300],
+                                    display: 'flex',
+                                    flexDirection: 'collumn'
                                 }}
                                 tag="span"
                             >
-                                {(new Date().toLocaleDateString())}
+                                {(new Date().toLocaleTimeString('pt-br'))} {/* deixar horario estatico*/}
+
+
                             </Text>
-                            <button onClick={() => onDelete(
-                                mensagem.id
-                            )}>
-                                excluir
-                            </button>
                         </Box>
-                        {mensagem.texto}
+
                     </Text>
                 );
             })}
-        </Box>
+        </Box >
     )
 }

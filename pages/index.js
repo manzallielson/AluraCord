@@ -2,8 +2,9 @@ import { Box, Button, Text, TextField, Image } from '@skynexui/components';
 import React from 'react';
 import { useRouter } from 'next/router';
 import appConfig from '../config.json';
-import Link from 'next/link'
 import {useUser} from '../hooks/useUser'
+
+
 
 
 
@@ -39,7 +40,8 @@ function Titulo(props) {
 export default function PaginaInicial() {
     const {username,setUser} = useUser();  
     const roteamento = useRouter();
-    
+
+  
     const paginaChat = () => {
         return (
             roteamento.push("/chat")
@@ -189,11 +191,11 @@ export default function PaginaInicial() {
                                 borderRadius: '35px 0px 35px 35px',
                                 marginBottom: '16px',
                             }}
-                            src={`https://github.com/${username}.png`}
+                            src={username == '' ? `https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png` : `https://github.com/${username}.png`}
                         />
 
                         <Button
-                            href="https://www.google.com" //https
+                            href= {`https://www.github.com/${username}`} //https
                             label={`GitHub ${username}`}
                             fullWidth
                             buttonColors={{
