@@ -25,229 +25,232 @@ export default function ChatPage() {
 
 
 
-React.useEffect(() => {
-    getMensagens();
-    const subscription = RealtimeClient((novaMensagem) => {
-        console.log('Nova mensagem:', novaMensagem);
-        console.log('listaDeMensagens:', listaDeMensagens);
-      
-        setListaDeMensagens((valorAtualDaLista) => {
-            console.log('valorAtualDaLista:', valorAtualDaLista);
-            return [
-                novaMensagem,
-                ...valorAtualDaLista,
-            ]
+    React.useEffect(() => {
+        getMensagens();
+        const subscription = RealtimeClient((novaMensagem) => {
+            console.log('Nova mensagem:', novaMensagem);
+            console.log('listaDeMensagens:', listaDeMensagens);
+
+            setListaDeMensagens((valorAtualDaLista) => {
+                console.log('valorAtualDaLista:', valorAtualDaLista);
+                return [
+                    novaMensagem,
+                    ...valorAtualDaLista,
+                ]
+            });
         });
-    });
 
-    return () => {
-        subscription.unsubscribe();
-    }
-
-}, []);
-
-function getMensagens() {
-    supaBaseClient
-        .from('mensagens')
-        .select('*')
-        .order('id', { ascending: false })
-        .then(({ data }) => {
-            // console.log('dados da consulta :', data)
-            setListaDeMensagens(data);
-        });
-}
-/* 
-// usuario
--usuario digita no campo textarea
--aperta enter para enviar
--tem que adicionar o texto na listagem
-
-//dev
--[x] campo criado
--[] vamos usar o onChange usa useState (ter if para caso seja enter para limpar a variavel)
--[] listagem de mensagens
-
-*/
-
-function handleNovaMensagem(novaMensagem) {
-    const mensagem = {
-        // id: listaDeMensagens.length + 1,
-        de: username ? username : 'Visitante',
-        texto: novaMensagem,
-    };
-    supaBaseClient
-        .from('mensagens')
-        .insert([
-            //mesmo nome do objeto criado no banco de dados
-            mensagem
-        ])
-        .then(({ data }) => {
-            console.log(data)
-            setMensagem('');
-        })
-}
-
-async function deleteMessage(id) {
-
-
-    try {
-        if (username == 'administrador') {
-            const { data, error } = await supaBaseClient
-                .from('mensagens')
-                .delete()
-                .match({ id: id })
-
-            const newList = listaDeMensagens.filter((item) => item.id != id)
-            setListaDeMensagens(newList);
-        } else {
-            alert('faça loggin com usuario "administrador" para excluir a conversa')
+        return () => {
+            subscription.unsubscribe();
         }
-    } catch (error) {
-        console.log(error)
-    }
-}
 
-return (
-    <Box
-        styleSheet={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: appConfig.theme.colors.primary['000'],
-            backgroundImage: 'url(https://virtualbackgrounds.site/wp-content/uploads/2020/07/bookshelf-at-dunster-house-library-1024x576.jpg)',
-            backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
-            color: appConfig.theme.colors.neutrals['000']
-        }}
-    >
+    }, []);
+
+    function getMensagens() {
+        supaBaseClient
+            .from('mensagens')
+            .select('*')
+            .order('id', { ascending: false })
+            .then(({ data }) => {
+                // console.log('dados da consulta :', data)
+                setListaDeMensagens(data);
+            });
+    }
+    /* 
+    // usuario
+    -usuario digita no campo textarea
+    -aperta enter para enviar
+    -tem que adicionar o texto na listagem
+    
+    //dev
+    -[x] campo criado
+    -[] vamos usar o onChange usa useState (ter if para caso seja enter para limpar a variavel)
+    -[] listagem de mensagens
+    
+    */
+
+    function handleNovaMensagem(novaMensagem) {
+        const mensagem = {
+            // id: listaDeMensagens.length + 1,
+            de: username ? username : 'Visitante',
+            texto: novaMensagem,
+        };
+        supaBaseClient
+            .from('mensagens')
+            .insert([
+                //mesmo nome do objeto criado no banco de dados
+                mensagem
+            ])
+            .then(({ data }) => {
+                console.log(data)
+                setMensagem('');
+            })
+    }
+
+    async function deleteMessage(id) {
+
+
+        try {
+            if (username == 'administrador') {
+                const { data, error } = await supaBaseClient
+                    .from('mensagens')
+                    .delete()
+                    .match({ id: id })
+
+                const newList = listaDeMensagens.filter((item) => item.id != id)
+                setListaDeMensagens(newList);
+            } else {
+                alert('faça loggin com usuario "administrador" para excluir a conversa')
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    return (
         <Box
             styleSheet={{
-                display: 'flex',
-                flexDirection: 'column',
-                // justifyContent:'space-between',
-                // alignItems:'space-between',
-                // alignContent:'space-between',
-                flex: 1,
-                border: 'solid 1px white',
-                borderRadius: '40px 0px 40px 40px',
-                backgroundColor: 'black',
-                height: '100%',
-                maxWidth: {
-                    sm: '60%',
-                    xs: '70%'
-                },
-                minWidth: '360px',
-                maxHeight: '80vh',
-                padding: {
-                    sm: '50px',
-                    xs: '30px'
-                },
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                backgroundColor: appConfig.theme.colors.primary['000'],
+                backgroundImage: 'url(https://virtualbackgrounds.site/wp-content/uploads/2020/07/bookshelf-at-dunster-house-library-1024x576.jpg)',
+                backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
+                color: appConfig.theme.colors.neutrals['000']
             }}
         >
-            <Header />
-
             <Box
                 styleSheet={{
-                    overflowY: 'hidden',
-                    border: 'solid 1px white',
-                    position: 'relative',
                     display: 'flex',
-                    flex: 1,
-                    backgroundColor: '#5a3629',
                     flexDirection: 'column',
-                    borderRadius: '15px 0px 0px 0px',
+                    // justifyContent:'space-between',
+                    // alignItems:'space-between',
+                    // alignContent:'space-between',
+                    flex: 1,
+                    border: 'solid 1px white',
+                    borderRadius: '40px 0px 40px 40px',
+                    backgroundColor: 'black',
+                    height: '100%',
+                    maxWidth: {
+                        sm: '60%',
+                        xs: '70%'
+                    },
+                    minWidth: '360px',
+                    maxHeight: '80vh',
                     padding: {
-                        sm: '5px',
-                        xs: '10px'
+                        sm: '50px',
+                        xs: '30px'
                     },
-                    justifyContent: 'center'
                 }}
             >
+                <Header />
 
-
-                {/* <MessageList mensagens={[]} /> */}
-                <MessageList mensagens={listaDeMensagens} onDelete={deleteMessage} />
                 <Box
-                    as="form"
                     styleSheet={{
+                        overflowY: 'hidden',
+                        border: 'solid 1px white',
+                        position: 'relative',
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
+                        flex: 1,
+                        backgroundColor: '#5a3629',
+                        flexDirection: 'column',
+                        borderRadius: '15px 0px 0px 0px',
+                        padding: {
+                            sm: '5px',
+                            xs: '10px'
+                        },
+                        justifyContent: 'center'
                     }}
                 >
+
+
+                    {/* <MessageList mensagens={[]} /> */}
+                    <MessageList mensagens={listaDeMensagens} onDelete={deleteMessage} />
+                    <Box
+                        as="form"
+                        styleSheet={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }}
+                    >
+                    </Box>
                 </Box>
-            </Box>
-            <Box
-                styleSheet={{
-                    margin: {
-                        sm: '20px 0 0 0 ',
-                        xs: "10px 0 0 0"
-                    },
-                    display: 'flex',
-
-                }}
-            >
-                <TextField
-                    value={mensagem}
-                    onChange={(event) => {
-                        const valor = event.target.value;
-                        setMensagem(valor);
-                    }}
-                    onKeyPress={(event) => {
-                        if (event.key === 'Enter') {
-                            event.preventDefault();
-                            handleNovaMensagem(mensagem);
-                        }
-                    }}
-                    placeholder="Insira sua mensagem aqui..."
-                    type="textarea"
+                <Box
                     styleSheet={{
-                        alignItems: 'center',
-                        border: 'solid 1px white',
-                        width: '100%',
-                        height: '100%',
-                        resize: 'none',
-                        borderRadius: '5px',
-                        padding: '6px 8px',
-                        backgroundColor: 'white',
-                        marginRight: '12px',
-                        color: 'black',
-                        fontSize: '15px',
+                        margin: {
+                            sm: '20px 0 0 0 ',
+                            xs: "10px 0 0 0"
+                        },
+                        display: 'flex',
 
-                    }}
-                />
-
-                <ButtonSendSticker
-                    onStickerClick={(sticker) => {
-                        console.log(sticker)
-                        handleNovaMensagem(`:sticker:${sticker}`);
-                    }}
-                />
-                <Button
-                    onClick={(event) => {
-                        handleNovaMensagem(mensagem);
-                    }}
-                    label={'ENVIAR'}
-                    styleSheet={{
-                        marginLeft: '10px',
-                        border: 'solid 1px white',
-                        width: '20%',
-                        height: '48px',
-                        borderRadius: '5px',
-                        padding: '6px 8px',
-                        backgroundColor: 'black',
-                        color: 'green',
-                        fontSize: '15px',
-                        hover: {
-                            backgroundColor: 'green',
-                            color: 'white'
-                        }
                     }}
                 >
-                </Button>
+                    <TextField
+                        value={mensagem}
+                        onChange={(event) => {
+                            const valor = event.target.value;
+                            setMensagem(valor);
+                        }}
+                        onKeyPress={(event) => {
+                            if (event.key === 'Enter') {
+                                event.preventDefault();
+                                handleNovaMensagem(mensagem);
+                            }
+                        }}
+                        placeholder="Insira sua mensagem aqui..."
+                        type="textarea"
+                        styleSheet={{
+                            alignItems: 'center',
+                            border: 'solid 1px white',
+                            width: '100%',
+                            height: '100%',
+                            resize: 'none',
+                            borderRadius: '5px',
+                            padding: '6px 8px',
+                            backgroundColor: 'white',
+                            marginRight: '12px',
+                            color: 'black',
+                            fontSize: '15px',
+
+                        }}
+                    />
+
+                    <ButtonSendSticker
+                        onStickerClick={(sticker) => {
+                            console.log(sticker)
+                            handleNovaMensagem(`:sticker:${sticker}`);
+                        }}
+                    />
+                    <Button
+                        onClick={(event) => {
+                            handleNovaMensagem(mensagem);
+                        }}
+                        label={'ENVIAR'}
+                        styleSheet={{
+                            marginLeft: '10px',
+                            border: 'solid 1px white',
+                            width: '100px',
+                            height: '48px',
+                            borderRadius: '5px',
+                            padding: '6px 8px',
+                            backgroundColor: 'black',
+                            color: 'green',
+                            fontSize: {
+                                sm: '10px',
+                                xs: "10px",
+                            },
+                        hover: {
+                                backgroundColor: 'green',
+                                color: 'white'
+                            }
+                        }}
+                    >
+                    </Button>
+                </Box>
+
+
             </Box>
-
-
         </Box>
-    </Box>
-)
+    )
 }
 
 function Header() {
