@@ -57,9 +57,9 @@ export default function PaginaInicial() {
                     width: '100vw',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexDirection: 'column',
-                    backgroundColor: appConfig.theme.colors.primary["000"],
-                    backgroundImage: 'url(https://virtualbackgrounds.site/wp-content/uploads/2020/07/bookshelf-at-dunster-house-library-1024x576.jpg)',
+                    backgroundColor:'black',
                     backgroundRepeat: 'no-repeat', backgroundSize: 'cover',
+                   
                 }}
             >
 
@@ -76,10 +76,11 @@ export default function PaginaInicial() {
                     },
                     width: '100%', maxWidth: '700px',
                     textShadow: '-2px 0 black, 0 2px black , 2px 0 black , 0 -2px black',
+                    
                 }}>
 
-                    <h1 >
-                        Aprendendo React!
+                    <h1>
+                        Whats da Alura
                     </h1>
 
                 </Box>
@@ -97,8 +98,10 @@ export default function PaginaInicial() {
                         width: '100%', maxWidth: '700px',
                         borderRadius: '35px 0px 35px 35px', padding: '32px', margin: '16px',
                         boxShadow: '0 2px 10px 0 rgb(0 0 0 / 20%)',
-                        backgroundColor: appConfig.theme.colors.novas["000"],
-                        border: 'solid white 1px'
+                        backgroundColor: appConfig.theme.colors.primary["500"],
+                        border: 'solid white 1px',
+                       
+                        
 
                     }}
                 >
@@ -114,6 +117,7 @@ export default function PaginaInicial() {
                         styleSheet={{
                             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                             width: { xs: '100%', sm: '50%' }, textAlign: 'center', marginBottom: '32px',
+                            
                         }}
                     >
 
@@ -160,7 +164,7 @@ export default function PaginaInicial() {
                             }}
                             styleSheet={{
                                 border: 'solid 1px white',
-                                backgroundColor: '#5a3226',
+                                backgroundColor: 'black',
                             }}
                         />
                     </Box>
@@ -205,7 +209,7 @@ export default function PaginaInicial() {
                                 textAlign:'center',
                                 border: 'solid 1px white',
                                 borderRadius: '10px 10px',
-                                backgroundColor: '#5a3226',
+                                backgroundColor: '#0AC435',
                                 padding: '5px 20px',
                             }}
 

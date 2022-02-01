@@ -1,13 +1,19 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
-import React from 'react';
+import React, { useState } from 'react';
 import appConfig from '../config.json';
 import { useUser } from '../hooks/useUser';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { ButtonSendSticker } from '../src/components/ButtonSendSticker';
+// import react from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCoffee } from '@fortawesome/free-solid-svg-icons'
+import Link from 'next/link';
+
 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzI5NjAxNiwiZXhwIjoxOTU4ODcyMDE2fQ.7PMO85vuH3LA-kVKEx5x2rGTS4cjj6KPu21Jk5spZQU'
 const SUPABASE_URL = 'https://hrxdmdigdqqnyhoeoarx.supabase.co'
 const supaBaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const element = <FontAwesomeIcon icon={faCoffee} />
 
 function RealtimeClient(adicionaMensagem) {
     return supaBaseClient
@@ -19,11 +25,11 @@ function RealtimeClient(adicionaMensagem) {
 }
 
 export default function ChatPage() {
-    const [mensagem, setMensagem] = React.useState('');
-    const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
+    const [mensagem, setMensagem] = useState('');
+    const [listaDeMensagens, setListaDeMensagens] = useState([]);
     const { username, setUsername } = useUser();
-
-
+    const [chat, setChat] = useState(false);
+    const [deletado, setDeletado] = useState(false);
 
     React.useEffect(() => {
         getMensagens();
@@ -39,11 +45,9 @@ export default function ChatPage() {
                 ]
             });
         });
-
         return () => {
             subscription.unsubscribe();
         }
-
     }, []);
 
     function getMensagens() {
@@ -68,6 +72,12 @@ export default function ChatPage() {
     -[] listagem de mensagens
     
     */
+    function deleta() {
+        setDeletado(true)
+    }
+    function chamaGrupo() {
+        setChat(!chat)
+    }
 
     function handleNovaMensagem(novaMensagem) {
         const mensagem = {
@@ -87,17 +97,16 @@ export default function ChatPage() {
             })
     }
 
-    async function deleteMessage(id) {
-
-
+    async function deleteMessage(mensagem) {
         try {
-            if (username == 'administrador') {
+            if (username === mensagem.de) {
+                setDeletado(true)
                 const { data, error } = await supaBaseClient
                     .from('mensagens')
                     .delete()
-                    .match({ id: id })
+                    .match({ id: mensagem.id })
 
-                const newList = listaDeMensagens.filter((item) => item.id != id)
+                const newList = listaDeMensagens.filter((item) => item.id != mensagem.id)
                 setListaDeMensagens(newList);
             } else {
                 alert('faça loggin com usuario "administrador" para excluir a conversa')
@@ -111,171 +120,385 @@ export default function ChatPage() {
         <Box
             styleSheet={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                backgroundColor: appConfig.theme.colors.primary['000'],
-                backgroundImage: 'url(https://virtualbackgrounds.site/wp-content/uploads/2020/07/bookshelf-at-dunster-house-library-1024x576.jpg)',
+                flexDirection: {
+                    xs: 'column',
+                    sm: 'row'
+                },
+                backgroundColor: appConfig.theme.colors.primary['400'],
                 backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
-                color: appConfig.theme.colors.neutrals['000']
+
+                height: '100vh',
+                width: '100vw',
+                border: 'solid 15px black'
             }}
         >
-            <Box
-                styleSheet={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    // justifyContent:'space-between',
-                    // alignItems:'space-between',
-                    // alignContent:'space-between',
-                    flex: 1,
-                    border: 'solid 1px white',
-                    borderRadius: '40px 0px 40px 40px',
-                    backgroundColor: 'black',
-                    height: '100%',
-                    maxWidth: {
-                        sm: '60%',
-                        xs: '70%'
-                    },
-                    minWidth: '360px',
-                    maxHeight: '80vh',
-                    padding: {
-                        sm: '50px',
-                        xs: '30px'
-                    },
-                }}
-            >
-                <Header />
+            <Box styleSheet={{
+                border: '1px solid black',
+                width: {
+                    xs: '100%',
+                    sm: '30%'
+                },
+                height: {
+                    xs: '15%',
+                    sm: '100%'
 
+                },
+                color: 'black',
+                display: 'flex',
+                flexDirection: {
+                    xs: 'column',
+                    sm: 'row'
+                },
+                flexDirection: 'column',
+                alignItems: 'center',
+                // justifyContent: 'space-around'
+            }}>
                 <Box
                     styleSheet={{
-                        overflowY: 'hidden',
-                        border: 'solid 1px white',
-                        position: 'relative',
                         display: 'flex',
-                        flex: 1,
-                        backgroundColor: '#5a3629',
-                        flexDirection: 'column',
-                        borderRadius: '15px 0px 0px 0px',
-                        padding: {
-                            sm: '5px',
-                            xs: '10px'
+                        alignItems: 'center',
+                        justifyContent: 'space-around',
+                        width: '100%',
+                        // padding: '3px',
+                        fontSize: {
+                            sm: '20px',
+                            xs: '15px',
                         },
-                        justifyContent: 'center'
+                        fontWeight: '900',
+                        backgroundColor: appConfig.theme.colors.primary['400'],
+                        textAlign: 'center',
+                        // height: '1'
                     }}
-                >
-
-
-                    {/* <MessageList mensagens={[]} /> */}
-                    <MessageList mensagens={listaDeMensagens} onDelete={deleteMessage} />
-                    <Box
-                        as="form"
+                ><Image src={`https://github.com/${username}.png`}
+                    styleSheet={{
+                        width: '50px',
+                        height: '50px',
+                        border: '1px solid black',
+                        borderRadius: '50%'
+                    }}
+                    />
+                    <Image src='/check-circle-regular.svg'
                         styleSheet={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }}
-                    >
-                    </Box>
+                            width: '35px',
+                            height: '35px',
+                        }} />
+                    <Image src='/comment-alt-solid.svg'
+                        styleSheet={{
+                            width: '35px',
+                            height: '35px',
+                        }} />
+
+                    <Link href='/'>
+                        <Image src='/ellipsis-v-solid.svg'
+                            styleSheet={{
+                                width: '35px',
+                                height: '35px',
+                            }} />
+                    </Link>
+
                 </Box>
                 <Box
                     styleSheet={{
-                        margin: {
-                            sm: '20px 0 0 0 ',
-                            xs: "10px 0 0 0"
+                        height: {
+                            xs: '100%',
+                            sm: '10%'
                         },
-                        display: 'flex',
+                        width: '100%',
+                    }}>
 
-                    }}
-                >
-                    <TextField
-                        value={mensagem}
-                        onChange={(event) => {
-                            const valor = event.target.value;
-                            setMensagem(valor);
-                        }}
-                        onKeyPress={(event) => {
-                            if (event.key === 'Enter') {
-                                event.preventDefault();
-                                handleNovaMensagem(mensagem);
-                            }
-                        }}
-                        placeholder="Insira sua mensagem aqui..."
-                        type="textarea"
+                    <Button
+                        onClick={(event) => { chamaGrupo() }}
+                        label="Alura Chat"
                         styleSheet={{
-                            alignItems: 'center',
-                            border: 'solid 1px white',
                             width: '100%',
                             height: '100%',
-                            resize: 'none',
-                            borderRadius: '5px',
-                            padding: '6px 8px',
                             backgroundColor: 'white',
-                            marginRight: '12px',
                             color: 'black',
-                            fontSize: '15px',
-
-                        }}
-                    />
-
-                    <ButtonSendSticker
-                        onStickerClick={(sticker) => {
-                            console.log(sticker)
-                            handleNovaMensagem(`:sticker:${sticker}`);
-                        }}
-                    />
-                    <Button
-                        onClick={(event) => {
-                            handleNovaMensagem(mensagem);
-                        }}
-                        label={'ENVIAR'}
-                        styleSheet={{
-                            marginLeft: '10px',
-                            border: 'solid 1px white',
-                            width: '100px',
-                            height: '48px',
-                            borderRadius: '5px',
-                            padding: '6px 8px',
-                            backgroundColor: 'black',
-                            color: 'green',
-                            fontSize: {
-                                sm: '10px',
-                                xs: "10px",
-                            },
-                        hover: {
+                            border: '5px solid black',
+                            fontWeight:'600',
+                            hover: {
                                 backgroundColor: 'green',
-                                color: 'white'
+                                color:'white',
+                                border: '5px solid white',
+                            },
+                            select: {
+                                backgroundColor: '#045C4E'
+                            },
+                            checked: {
+                                backgroundColor: '#045C4E'
+                            },
+                            focus: {
+                                backgroundColor: '#045C4E'
                             }
-                        }}
-                    >
+                        }}>
+
                     </Button>
                 </Box>
-
-
             </Box>
+            {/* Tela sem chat */}
+            {!chat ?
+                <Box
+                    styleSheet={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flex: 1,
+                        border: 'solid 1px white',
+                        backgroundColor: appConfig.theme.colors.primary['500'],
+                        backgroundRepeat: 'no-repeat', backgroundSize: 'cover', backgroundBlendMode: 'multiply',
+                        height: '100%',
+                        maxWidth: {
+                            sm: '100%',
+                            xs: '100%'
+                        },
+                        // minWidth: '360px',
+                        maxHeight: '100vh',
+                    }}
+                >
+                    <Box
+                        styleSheet={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            backgroundColor: '#efeae2',
+                            backgroundColor: appConfig.theme.colors.primary['500'],
+                            backgroundImage: `url(/bgFound.png)`,
+                            width: '100%',
+                            height: '100%',
+
+                            textAlign: 'center',
+                            justifyContent: 'space-around',
+
+                        }}>
+                        <h1>Clique em uma conversa</h1>
+                        <span>ou</span>
+                        <h1>Incie uma nova conversa</h1>
+                    </Box>
+
+                </Box>
+
+                :
+
+                <Box
+                    styleSheet={{
+                        width: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        flex: 1,
+                        // border: 'solid 1px white',
+                        backgroundColor: appConfig.theme.colors.primary['700'],
+                        height: '100%',
+                        maxWidth: {
+                            sm: '100%',
+                            xs: '100%'
+                        },
+                        minWidth: '310px',
+                        maxHeight: '100vh',
+                    }}
+                >
+
+
+                    <Header />
+
+                    <Box
+                        styleSheet={{
+                            height: '100%',
+                            overflowY: 'hidden',
+                            position: 'relative',
+                            display: 'flex',
+                            flex: 1,
+                            backgroundColor: '#efeae2',
+                            backgroundImage: `url(/bgFound.png)`,
+                            flexDirection: 'column',
+                            borderRadius: '15px 0px 0px 0px',
+                            padding: {
+                                md: '10px',
+                                xs: '5px'
+                            },
+                            justifyContent: 'center',
+
+                        }}
+                    >
+
+
+                        {/* <MessageList mensagens={[]} /> */}
+                        <Box
+                            styleSheet={{
+
+                                height: '100%',
+                                overflowY: 'hidden',
+                                position: 'relative',
+                                display: 'flex',
+                                flex: 1,
+                                backgroundColor: appConfig.theme.colors.primary['400'],
+                                backgroundImage: `url(/bgFound.png)`,
+                                flexDirection: 'column',
+                                borderRadius: '15px 0px 0px 0px',
+                                padding: {
+                                    md: '10px',
+                                    xs: '5px'
+                                },
+                                justifyContent: 'center',
+
+                            }}>
+                            <MessageList mensagens={listaDeMensagens} onDelete={deleteMessage} styleSheet={{
+                                flexDirection: 'start'
+                            }} />
+                        </Box>
+
+                        <Box
+                            as="form"
+                            styleSheet={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                        </Box>
+                    </Box>
+
+                    <Box
+                        styleSheet={{
+                            margin: {
+                                sm: '20px 0 0 10px ',
+                                xs: "10px 0 0 10px"
+                            },
+                            display: 'flex',
+                        }}
+                    >
+                        <ButtonSendSticker
+                            onStickerClick={(sticker) => {
+                                console.log(sticker)
+                                handleNovaMensagem(`:sticker:${sticker}`);
+                            }}
+                            styleSheet={{
+                                margin: '10px'
+                            }}
+                        />
+                        <TextField
+                            value={mensagem}
+                            onChange={(event) => {
+                                const valor = event.target.value;
+                                setMensagem(valor);
+                            }}
+                            onKeyPress={(event) => {
+                                if (event.key === 'Enter') {
+                                    event.preventDefault();
+                                    handleNovaMensagem(mensagem);
+                                }
+                            }}
+                            placeholder="Insira sua mensagem aqui..."
+                            type="textarea"
+                            styleSheet={{
+                                alignItems: 'center',
+                                border: 'solid 1px white',
+                                width: '100%',
+                                height: '100%',
+                                resize: 'none',
+                                borderRadius: '5px',
+                                padding: '6px 8px',
+                                backgroundColor: 'white',
+                                margin: '0px 12px 12px 12px',
+                                color: 'black',
+                                fontSize: '15px',
+
+                            }}
+                        />
+
+                        <Button
+                            onClick={(event) => {
+                                handleNovaMensagem(mensagem);
+                            }}
+                            label={'ENVIAR'}
+                            styleSheet={{
+                                marginLeft: '10px',
+                                border: '5px solid white',
+                                width: '100px',
+                                height: '48px',
+                                borderRadius: '5px',
+                                padding: '6px 8px',
+                                backgroundColor: 'green',
+                                color: 'white',
+                                fontSize: {
+                                    sm: '10px',
+                                    xs: "10px",
+                                },
+                                hover: {
+                                    backgroundColor: 'green',
+                                    color:'white',
+                                    border: '5px solid white',
+                                },
+                                select: {
+                                    backgroundColor: '#045C4E'
+                                },
+                                checked: {
+                                    backgroundColor: '#green'
+                                },
+                                focus: {
+                                    backgroundColor: '#green'
+                                }
+                            }}>
+                        </Button>
+                    </Box>
+
+
+                </Box>
+
+            }
+
+
+            {/* Chat */}
+
         </Box>
     )
 }
 
 function Header() {
+    const { username, setUsername } = useUser();
+
     return (
         <>
-            <Box styleSheet={{ width: '100%', marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} >
-                <Text variant='heading5'
-                    styleSheet={{
-                        fontSize: '40px',
-                    }
-                    }>
-                    AluraCord
-                </Text>
-                <Button
-                    variant='tertiary'
-                    colorVariant='neutral'
-                    label='Logout'
-                    href="/"
-                    styleSheet={{
-                        hover: {
-                            backgroundColor: 'red'
-                        },
-                        color: 'red', border: 'solid 1px white', borderRadius: '5px 5px'
-                    }}
-                />
+            <Box styleSheet={{ 
+            width: '100%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            backgroundColor: appConfig.theme.colors.primary['400'],
+            border:'solid black 1px'
+            }} >
+                <Box
+                styleSheet={{
+                    marginLeft:'20px',
+                    width:'40%'
+                }}>
+
+                    <Image
+                        src={'/familia.jpeg'}
+                        styleSheet={{
+                            width: '50px',
+                            height: '50px',
+                            borderRadius: '50px',
+                        }}
+
+                    />
+                </Box>
+
+                <Box
+                
+                styleSheet={{
+                    width:'90%',
+                    display:'flex',
+                    textAlign:'center',
+                }}>
+
+                    <Text variant='heading5'
+                        styleSheet={{
+                            textAlign:'center',
+                            fontSize: {
+                                sm: '30px',
+                                xs: '10px',
+                            }
+                        }}>
+                        Alura Chat
+                    </Text>
+                </Box>
             </Box>
         </>
     )
@@ -286,6 +509,7 @@ function MessageList({ mensagens, onDelete }) {
 
 
     return (
+
         <Box
             tag="ul"
             styleSheet={{
@@ -295,17 +519,23 @@ function MessageList({ mensagens, onDelete }) {
                 flex: 1,
                 color: appConfig.theme.colors.neutrals["000"],
                 marginBottom: '16px',
+
+
             }}
         >
             {mensagens.map((mensagem, index) => {
                 return (
+
                     <Text
                         key={index}
                         tag="li"
                         styleSheet={{
-                            borderRadius: '5px',
+                            alignSelf: username === mensagem.de ? 'end' : 'start',
+                            borderRadius: username === mensagem.de ? '10px 0px 10px 10px' : '0px 10px 10px 10px',
                             padding: '6px',
-                            marginBottom: '12px',
+                            margin: '0 12px 10px 10px',
+                            backgroundColor: 'white',
+                            width: '80%',
 
                         }}
                     >
@@ -315,12 +545,13 @@ function MessageList({ mensagens, onDelete }) {
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: 'center',
+
                             }}
                         >
                             <Box styleSheet={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                alignItems: 'center'
+                                alignItems: 'center',
                             }}>
 
 
@@ -348,7 +579,11 @@ function MessageList({ mensagens, onDelete }) {
                                 <Text tag="strong"
                                     styleSheet={{
                                         fontSize: '15px',
-                                        color: 'yellow'
+                                        color: 'black',
+                                        fontWeight: '900',
+                                        textAlign: 'center',
+                                        alignSelf: 'center'
+
                                     }}>
                                     {mensagem.de}
                                 </Text>
@@ -374,24 +609,27 @@ function MessageList({ mensagens, onDelete }) {
                                 justifyContent: 'space-between',
                                 alignItems: 'center'
                             }}>
+                                {username === mensagem.de &&
 
-                                <Button
-                                    label='X'
-                                    styleSheet={{
-                                        width: '10px',
-                                        height: '10px',
-                                        backgroundColor: '#5a3226',
-                                        hover: {
-                                            backgroundColor: 'red',
-                                            color: 'white',
-                                            border: 'solid 1px white'
+                                    <Button
+                                        label='X'
+                                        styleSheet={{
+                                            width: '10px',
+                                            height: '10px',
+                                            backgroundColor: '#5a3226',
+                                            hover: {
+                                                backgroundColor: 'red',
+                                                color: 'white',
+                                                border: 'solid 1px white'
 
-                                        },
+                                            },
 
-                                    }} onClick={() => onDelete(
-                                        mensagem.id
-                                    )}>
-                                </Button>
+                                        }} onClick={() => onDelete(
+                                            mensagem
+                                        )}>
+                                    </Button>
+                                }
+
                             </Box>
 
                         </Box>
@@ -402,7 +640,8 @@ function MessageList({ mensagens, onDelete }) {
                                 alignItems: "center",
                                 justifyContent: 'space-between',
                                 fontSize: '15px',
-                                color: 'white'
+                                color: 'black',
+
 
                             }}>
 
